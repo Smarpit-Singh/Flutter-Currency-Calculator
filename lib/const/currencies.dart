@@ -1,6 +1,6 @@
 
 class MyConst{
-   static const String Url = 'http://data.fixer.io/';
+   static const String Url = 'data.fixer.io';
    static const String MyKey = "57f80342ef5c7778ad1cfac36010339d";
 
    static const Map<String, String> CurrenciesMap = {

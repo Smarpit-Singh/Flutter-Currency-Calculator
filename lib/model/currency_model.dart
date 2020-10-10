@@ -15,6 +15,7 @@ class CurrencyModel {
     this._rates = rates;
   }
 
+
   bool get success => _success;
   set success(bool success) => _success = success;
   int get timestamp => _timestamp;
