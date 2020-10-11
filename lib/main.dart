@@ -36,10 +36,10 @@ class MyICState extends State<MyInterestCalculator> {
   var code1;
   var code2;
 
-  String txt1;
-  String txt2;
+  TextEditingController v1 = new TextEditingController();
+  TextEditingController v2 = new TextEditingController();
 
-  CurrencyModel currencyModel = new CurrencyModel();
+  CurrencyModel currencyModel;
 
 
   getSuggest() async {
@@ -51,14 +51,15 @@ class MyICState extends State<MyInterestCalculator> {
       });
 
       var response = await http.get(uri, headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
+        "content-type" : "application/json",
+        "accept" : "application/json",
       });
 
       var data = json.decode(response.body);
-      print(data);
+      debugPrint(data.toString());
 
       setState(() {
-        currencyModel = data;
+        currencyModel = CurrencyModel.fromJson(data);
       });
 
     } catch (error) {
@@ -82,6 +83,13 @@ class MyICState extends State<MyInterestCalculator> {
       color: Colors.black,
     );
 
+   /* v1.addListener(() {
+      calculate(1, v1.text);
+    });
+
+    v2.addListener(() {
+      calculate(2, v2.text);
+    });*/
 
     return Scaffold(
       appBar: AppBar(
@@ -103,10 +111,10 @@ class MyICState extends State<MyInterestCalculator> {
                     children: <Widget>[
                       Expanded(
                         child: TextFormField(
-                          initialValue: txt1,
                           keyboardType: TextInputType.number,
                           style: textStyle,
-                          onChanged: (s) {
+                          controller: v1,
+                          onFieldSubmitted: (s){
                             calculate(1, s);
                           },
                           validator: (String value) {
@@ -152,13 +160,12 @@ class MyICState extends State<MyInterestCalculator> {
                     children: <Widget>[
                       Expanded(
                         child: TextFormField(
-                          initialValue: txt2,
                           keyboardType: TextInputType.number,
                           style: textStyle,
-                          onChanged: (s) {
+                          controller: v2,
+                          onFieldSubmitted: (s){
                             calculate(2, s);
                           },
-
                           validator: (String value) {
                             if (value.isEmpty) {
                               return 'Please enter amount';
@@ -261,8 +268,8 @@ class MyICState extends State<MyInterestCalculator> {
   }
 
   void _reset() {
-    txt1 = "";
-    txt2 = "";
+    v1.text = "";
+    v2.text = "";
     _currentItemSelected1 = MyConst.CurrenciesMap[0];
     _currentItemSelected2 = MyConst.CurrenciesMap[0];
   }
@@ -289,14 +296,14 @@ class MyICState extends State<MyInterestCalculator> {
       double amount1 = double.parse(s);
       double result = magic(amount1, code1, rate1, rate2);
       setState(() {
-        txt1 = result.toString();
+        v2.text = result.toStringAsFixed(3);
       });
     } else {
 
       double amount2 = double.parse(s);
       double result = magic(amount2, code2, rate2, rate1);
       setState(() {
-        txt2 = result.toString();
+        v1.text = result.toStringAsFixed(3);
       });
     }
   }
@@ -378,11 +385,18 @@ class MyICState extends State<MyInterestCalculator> {
 
   double magic(double amount, String code, double from, double to) {
     print('Inside magic $amount, $code, $from, $to');
-    if (code != 'USD') {
+    if (code != 'EUR') {
       amount = (amount / from);
     }
 
     amount = (amount * to);
     return amount;
+  }
+
+  @override
+  void dispose() {
+    v1.dispose();
+    v2.dispose();
+    super.dispose();
   }
 }
